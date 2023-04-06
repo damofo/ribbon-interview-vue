@@ -5,6 +5,25 @@
  */
 
 // https://next.vuetifyjs.com/features/sass-variables/`
-// @use 'vuetify' with (
-//   $color-pack: false
-// );
+$my-color-text: rgba(58, 58, 64, 0.87);
+$my-color-header-row: rgba(58, 58, 64, 0.05);
+$my-color-row-hover: rgba(58, 58, 64, 0.03);
+
+
+.v-data-table-header {
+    background-color: $my-color-header-row;
+}
+
+.donors-table {
+    color: $my-color-text !important;
+  
+    .v-data-table-header {
+        background-color: $my-color-header-row;
+    }
+
+    tbody {
+        tr:hover {
+        background-color: $my-color-row-hover !important;
+        }
+    }
+}

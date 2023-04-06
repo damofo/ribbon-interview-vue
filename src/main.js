@@ -12,6 +12,7 @@ Vue.config.productionTip = false;
 import App from './App';
 
 import vuetify from './plugins/vuetify';
+import './styles/settings.scss';
 
 /* eslint-disable no-new */
 new Vue({

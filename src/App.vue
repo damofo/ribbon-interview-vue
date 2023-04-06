@@ -39,24 +39,42 @@
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="donors">
-                  <thead>
-                    <tr>
-                      <th class="text-left">Name</th>
-                      <th class="text-left">Email</th>
-                      <th class="text-left">Total Donations</th>
-                      <th class="text-left">First Donation</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="item in donors.data" :key="item.id">
-                      <td>{{ item.full_name }}</td>
-                      <td>{{ item.email }}</td>
-                      <td>{{ item.total_donations }}</td>
-                      <td>{{ item.first_donation }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <v-responsive
+                  class="mx-auto"
+                  max-width="300"
+                >
+                  <v-text-field
+                    v-model="search"
+                    label="Search"
+                    append-icon="mdi-magnify"
+                  ></v-text-field>
+                </v-responsive>
+                
+                <v-progress-circular
+                  v-if="loading"
+                  color="success"
+                  indeterminate
+                  class="mx-auto"
+                />
+
+                <v-data-table
+                  v-else
+                  :headers="headers"
+                  :items="donors"
+                  :items-per-page="5"
+                  :sort-by="sortBy"
+                  :sort-desc="sortDesc"
+                  :search="search"
+                  item-key="id"
+                  class="donors-table"
+                >
+                <template v-slot:item.total_donations="{ item }">
+                  {{ formatCurrency(item.total_donations) }}
+                </template>
+                <template v-slot:item.first_donation="{ item }">
+                  {{ formatDate(item.first_donation) }}
+                </template>
+                </v-data-table>
               </v-col>
             </v-row>
           </v-container>
@@ -124,11 +142,31 @@ export default {
 
   data() {
     return {
-      donors: null,
+      donors: [],
       valid: false,
       email: '',
       donor_id: '',
       message: '',
+      search: "",
+      sortBy: "full_name",
+      sortDesc: false,
+      headers: [
+        { text: "Name", value: "full_name", sortable: true },
+        { text: "Email", value: "email", sortable: true },
+        {
+          text: "Total Donations",
+          value: "total_donations",
+          align: "left",
+          sortable: true,
+        },
+        {
+          text: "First Donation",
+          value: "first_donation",
+          align: "left",
+          sortable: true,
+        },
+      ],
+      loading: false,
       emailRules: [
         (value) => {
           if (value) return true;
@@ -146,11 +184,30 @@ export default {
     };
   },
   mounted() {
+    this.loading = true;
     axios
       .get('https://interview.ribbon.giving/api/donors')
-      .then((response) => (this.donors = response.data));
+      .then((response) => {
+        this.donors = response.data.data;
+        this.loading = false;
+      })
+      .catch((error) => {
+        console.log("Error during fetch", error.message);
+        this.loading = false;
+      });
   },
   methods: {
+    formatCurrency(amount) {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      });
+      return formatter.format(amount);
+    },
+    formatDate(date) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(date).toLocaleDateString(undefined, options);
+    },
     async submit() {
       // Send message to server.
     },
