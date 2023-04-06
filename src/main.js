@@ -1,7 +1,7 @@
 /* Vue */
-import Vue from "vue";
+import Vue from 'vue';
 // import router from "./router";
-import store from "./store";
+import store from './store';
 
 Vue.config.productionTip = false;
 
@@ -9,13 +9,13 @@ Vue.config.productionTip = false;
 // import "./assets/style/app.scss";
 
 /* App component */
-import App from "./App";
+import App from './App';
 
-import vuetify from "./plugins/vuetify";
+import vuetify from './plugins/vuetify';
 
 /* eslint-disable no-new */
 new Vue({
-  el: "#app",
+  el: '#app',
 
   // Attach the Vue instance to the window,
   // so it's available globally.
