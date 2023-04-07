@@ -39,17 +39,14 @@
             </v-row>
             <v-row>
               <v-col>
-                <v-responsive
-                  class="mx-auto"
-                  max-width="300"
-                >
+                <v-responsive class="mx-auto" max-width="300">
                   <v-text-field
                     v-model="search"
                     label="Search"
                     append-icon="mdi-magnify"
                   ></v-text-field>
                 </v-responsive>
-                
+
                 <v-progress-circular
                   v-if="loading"
                   color="success"
@@ -68,12 +65,12 @@
                   item-key="id"
                   class="donors-table"
                 >
-                <template v-slot:item.total_donations="{ item }">
-                  {{ formatCurrency(item.total_donations) }}
-                </template>
-                <template v-slot:item.first_donation="{ item }">
-                  {{ formatDate(item.first_donation) }}
-                </template>
+                  <template v-slot:item.total_donations="{ item }">
+                    {{ formatCurrency(item.total_donations) }}
+                  </template>
+                  <template v-slot:item.first_donation="{ item }">
+                    {{ formatDate(item.first_donation) }}
+                  </template>
                 </v-data-table>
               </v-col>
             </v-row>
@@ -94,28 +91,8 @@
                   </p>
                 </v-responsive>
               </v-col>
-              <v-sheet width="400" class="mx-auto">
-                <v-form
-                  v-model="valid"
-                  validate-on="submit"
-                  @submit.prevent="submit"
-                >
-                  <v-textarea
-                    v-model="message"
-                    :rules="messageRules"
-                    label="Message"
-                  ></v-textarea>
-                  <v-text-field
-                    v-model="email"
-                    :rules="emailRules"
-                    label="Email"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="donor_id"
-                    label="Donor Id"
-                  ></v-text-field>
-                  <v-btn type="submit" block class="mt-2">Send</v-btn>
-                </v-form>
+              <v-sheet width="400" class="mx-auto pa-4">
+                <donor-form :submitForm="submit" />
               </v-sheet>
             </v-row>
           </v-container>
@@ -137,32 +114,36 @@
 
 <script>
 import axios from 'axios';
+import DonorForm from './components/DonorForm.vue';
+import { mapGetters, mapActions } from 'vuex';
 export default {
   name: 'App',
+  components: {
+    DonorForm,
+  },
 
   data() {
     return {
-      donors: [],
       valid: false,
       email: '',
       donor_id: '',
       message: '',
-      search: "",
-      sortBy: "full_name",
+      search: '',
+      sortBy: 'full_name',
       sortDesc: false,
       headers: [
-        { text: "Name", value: "full_name", sortable: true },
-        { text: "Email", value: "email", sortable: true },
+        { text: 'Name', value: 'full_name', sortable: true },
+        { text: 'Email', value: 'email', sortable: true },
         {
-          text: "Total Donations",
-          value: "total_donations",
-          align: "left",
+          text: 'Total Donations',
+          value: 'total_donations',
+          align: 'left',
           sortable: true,
         },
         {
-          text: "First Donation",
-          value: "first_donation",
-          align: "left",
+          text: 'First Donation',
+          value: 'first_donation',
+          align: 'left',
           sortable: true,
         },
       ],
@@ -188,11 +169,11 @@ export default {
     axios
       .get('https://interview.ribbon.giving/api/donors')
       .then((response) => {
-        this.donors = response.data.data;
+        this.setDonors(response.data.data);
         this.loading = false;
       })
       .catch((error) => {
-        console.log("Error during fetch", error.message);
+        console.log('Error during fetch', error.message);
         this.loading = false;
       });
   },
@@ -208,9 +189,26 @@ export default {
       const options = { year: 'numeric', month: 'short', day: 'numeric' };
       return new Date(date).toLocaleDateString(undefined, options);
     },
-    async submit() {
+    async submit(formData) {
       // Send message to server.
+      console.log(formData);
+      const settings = {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        method: 'POST',
+      };
+      axios.post(
+        `https://interview.ribbon.giving/api/donors/${formData.donor_id}/send-message`,
+        formData,
+        settings
+      );
     },
+    ...mapActions(['setDonors']),
+  },
+  computed: {
+    ...mapGetters(['donors']),
   },
 };
 </script>

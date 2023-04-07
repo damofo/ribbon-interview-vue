@@ -7,6 +7,23 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-const store = new Vuex.Store({});
+const store = new Vuex.Store({
+  state: {
+    donors: [],
+  },
+  mutations: {
+    setDonors(state, donors) {
+      state.donors = donors;
+    },
+  },
+  actions: {
+    setDonors({ commit }, donors) {
+      commit('setDonors', donors);
+    },
+  },
+  getters: {
+    donors: (state) => state.donors,
+  },
+});
 
 export default store;
